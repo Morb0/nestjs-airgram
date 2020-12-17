@@ -8,6 +8,7 @@ tsconfig.json
 .eslintrc.js
 .prettierrc
 .release-it.json
+.commitlintrc.json
 
 # github
 .github
