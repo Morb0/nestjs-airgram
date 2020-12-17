@@ -1,6 +1,6 @@
 {
   "name": "nestjs-tdl",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TDLib module for NestJS",
   "keywords": [
     "nest",

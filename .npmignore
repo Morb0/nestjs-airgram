@@ -1,0 +1,18 @@
+# source
+lib
+tests
+index.ts
+package-lock.json
+yarn.lock
+tsconfig.json
+.eslintrc.js
+.prettierrc
+.release-it.json
+
+# github
+.github
+CONTRIBUTING.md
+renovate.json
+
+# ci
+.circleci
