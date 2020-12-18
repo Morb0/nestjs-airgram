@@ -28,12 +28,19 @@ export class TdlProvider
 
   async onModuleInit(): Promise<void> {
     this.setupErrorHandler();
+    this.setFatalErrorHandler();
     await this.makeConnection().then(() => this.makeLogin);
   }
 
   private setupErrorHandler(): void {
     this.on('error', (err) => {
       this.logger.error('Unexpected error', err.message);
+    });
+  }
+
+  private setFatalErrorHandler(): void {
+    this.setLogFatalErrorCallback((message) => {
+      this.logger.error('Fatal error', message);
     });
   }
 
