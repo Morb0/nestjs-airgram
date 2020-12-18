@@ -1,5 +1,6 @@
 # source
 lib
+sample
 tests
 index.ts
 package-lock.json
