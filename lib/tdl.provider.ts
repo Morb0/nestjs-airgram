@@ -5,7 +5,7 @@ import {
   OnApplicationShutdown,
   OnModuleInit,
 } from '@nestjs/common';
-import Client, { TdlError } from 'tdl';
+import Client from 'tdl';
 import { TDLib } from 'tdl-tdlib-addon';
 import { TDL_MODULE_OPTIONS } from './tdl.constants';
 import { TdlModuleOptions } from './interfaces';
@@ -19,10 +19,7 @@ export class TdlProvider
   constructor(@Inject(TDL_MODULE_OPTIONS) private options: TdlModuleOptions) {
     super(
       options.tdlibInstance || new TDLib(options.tdlibPath),
-      Object.assign(options.options || {}, {
-        apiId: options.apiId,
-        apiHash: options.apiHash,
-      }),
+      options,
     );
   }
 
@@ -51,7 +48,9 @@ export class TdlProvider
   }
 
   private async makeLogin(): Promise<void> {
-    await this.login(() => this.options.loginDetails)
+    if (!this.options.loginDetails) return;
+
+    await this.login(() => this.options.loginDetails!)
       .then(() => this.logger.log('Authorized successfully'))
       .catch((err) => this.logger.error('Failed to login', err.message));
   }
