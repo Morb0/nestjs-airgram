@@ -1,3 +1,3 @@
-export * from './tdl-module-async-options.interface';
-export * from './tdl-module-options.interface';
-export * from './tdl-options-factory.interface';
+export * from './airgram-module-options.interface';
+export * from './airgram-module-async-options.interface';
+export * from './airgram-options-factory.interface';

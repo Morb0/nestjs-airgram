@@ -10,9 +10,12 @@
     "experimentalDecorators": true,
     "target": "es6",
     "sourceMap": false,
+    "baseUrl": "./",
     "outDir": "./dist",
-    "rootDir": "./lib",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "nestjs-airgram": ["./lib"]
+    }
   },
   "include": ["lib/**/*", "sample/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "tests"]

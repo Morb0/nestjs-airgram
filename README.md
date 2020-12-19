@@ -3,47 +3,48 @@
 </p>
 
 <p align="center">
-    <a href="https://www.npmjs.com/package/nestjs-tdl"><img src="https://img.shields.io/npm/v/nestjs-tdl.svg" alt="NPM Version" /></a>
-    <a href="https://www.npmjs.com/package/nestjs-tdl"><img src="https://img.shields.io/npm/l/nestjs-tdl.svg" alt="Package License" /></a>
-    <a href="https://www.npmjs.com/package/nestjs-tdl"><img src="https://img.shields.io/npm/dm/nestjs-tdl.svg" alt="NPM Downloads" /></a>
+    <a href="https://www.npmjs.com/package/nestjs-airgram"><img src="https://img.shields.io/npm/v/nestjs-airgram.svg" alt="NPM Version" /></a>
+    <a href="https://www.npmjs.com/package/nestjs-airgram"><img src="https://img.shields.io/npm/l/nestjs-airgram.svg" alt="Package License" /></a>
+    <a href="https://www.npmjs.com/package/nestjs-airgram"><img src="https://img.shields.io/npm/dm/nestjs-airgram.svg" alt="NPM Downloads" /></a>
 </p>
 
 ## Description
 
-[TDL](https://github.com/Bannerets/tdl) module for [Nest](https://github.com/nestjs/nest).
+[Airgram](https://github.com/airgram/airgram) module for [Nest](https://github.com/nestjs/nest).
 
 ## Installation
 
 **NPM**
 ```bash
-$ npm i -s nestjs-tdl
+$ npm i -s nestjs-airgram
 ```
 
 **Yarn**
 ```bash
-$ yarn add nestjs-tdl
+$ yarn add nestjs-airgram
 ```
 
 ## Quick Start
-Once the installation process is complete, now we need TDLib binaries, how to get them you can found [here](https://github.com/Bannerets/tdl#installation),
+Once the installation process is complete, now we need **TDLib 1.7** binaries, how to get them you need to build them by this [guide](https://github.com/tdlib/td#building), or you can found [here](https://github.com/Bannerets/tdl#installation),
 then place binaries somewhere in your project workspace. Then we can import the module `TdlModule` either synchronously or asynchronosly into the root `AppModule`.
 
-It is important to specify the correct path to the TDLib binaries in the `tdlibPath` field.
+It is important to specify the correct path to the TDLib binaries in the `command` field.
+It is directly passed to dlopen / LoadLibrary. Check your OS documentation to see where it searches for the library.
 
 &nbsp;
 
 ### Synchronous configuration
 ```typescript
 import { Module } from '@nestjs/common';
-import { TdlModule } from 'nestjs-tdl';
+import { AirgramModule } from 'nestjs-airgram';
 
 @Module({
   imports: [
-    TdlModule.forRoot({
+    AirgramModule.forRoot({
       apiId: 'YOUR_APP_ID',
       apiHash: 'YOUR_API_HASH',
-      tdlibPath: path.resolve(__dirname, /* Some path */ 'tdjson.dll'),
-      loginDetails: {
+      command: path.resolve('tdjson.dll'), // Path to tdlib
+      auth: {
         // ...
       },
     }),
@@ -52,71 +53,18 @@ import { TdlModule } from 'nestjs-tdl';
 export class AppModule {}
 ```
 
-### Asynchronous configuration
-
-In this example, the module integrates with the [@nestjs/config](https://github.com/nestjs/config) package.
-
-`useFactory` should return an object with `TdlModuleOptions` interface.
+Then we can inject `Airgram` into our services.
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { TdlModule } from 'nestjs-tdl';
-
-@Module({
-  imports: [
-    ConfigModule.forRoot(),
-    TdlModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-          apiId: configService.get<number>('APP_ID'),
-          apiHash: configService.get<string>('API_HASH'),
-          tdlibPath: path.resolve(__dirname, /* Some path */ 'tdjson.dll'),
-          loginDetails: {
-            // ...
-          },
-        }),
-    }),
-  ],
-})
-export class AppModule {}
-```
-
-In most cases it will be more convenient to isolate the options in a separate factory class.
-Here `TdlOptionsService` implements `TdlOptionsFactory` interface.
-
-```typescript
-import { Module } from '@nestjs/common';
-import { TdlModule } from 'nestjs-tdl';
-
-@Module({
-  imports: [
-    ConfigModule.forRoot(),
-    TdlModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useClass: TdlOptionsService,
-    }),
-  ],
-})
-export class AppModule {}
-```
-
-Then we can inject `TdlProvider` into our services.
-
-```typescript
-import { Injectable,OnModuleInit } from '@nestjs/common';
-import { InjectTdl, TdlProvider } from 'nestjs-tdl';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Airgram } from 'airgram';
 
 @Injectable()
 export class AppService implements OnModuleInit {
-  constructor(@InjectTdl() private tdl: TdlProvider) {}
+  constructor(private airgram: Airgram) {}
 
   async onModuleInit(): Promise<void> {
-    const me = await this.tdl.invoke({
-       _: 'getMe',
-     });
-
+    const me = await this.airgram.api.getMe();
     console.log('Me:', me);
   }
 }

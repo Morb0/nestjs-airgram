@@ -1,3 +1,10 @@
+### TDLib ###
+tdjson.dll
+zlib1.dll
+libcrypto-1_1-x64.dll
+libssl-1_1-x64.dll
+db
+
 ### Webstorm ###
 .idea
 

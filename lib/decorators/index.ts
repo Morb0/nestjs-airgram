@@ -1,1 +1,1 @@
-export * from './inject-tdl.decorator';
+export * from './on-update.decorator';
