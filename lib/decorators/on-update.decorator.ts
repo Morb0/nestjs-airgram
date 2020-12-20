@@ -1,6 +1,5 @@
-import { SetMetadata } from '@nestjs/common';
-import { UPDATE } from '@airgram/constants';
-import { UPDATE_EVENT_LISTENER_METADATA } from '../airgram.constants';
+import { UpdateEvent } from '../airgram.types';
+import { On, OnType } from './on.decorator';
 
-export const OnUpdate = (updateEvent: UPDATE): MethodDecorator =>
-  SetMetadata(UPDATE_EVENT_LISTENER_METADATA, updateEvent);
+export const OnUpdate = (updateEvent: UpdateEvent): MethodDecorator =>
+  On({ event: updateEvent, type: OnType.OnlyUpdates });

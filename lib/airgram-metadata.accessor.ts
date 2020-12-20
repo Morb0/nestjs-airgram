@@ -1,14 +1,13 @@
 import { Injectable, Type } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UPDATE } from '@airgram/constants';
-import { UPDATE_EVENT_LISTENER_METADATA } from './airgram.constants';
+import { EVENTS_LISTENER_METADATA } from './airgram.constants';
+import { OnOptions } from './decorators/on.decorator';
 
 @Injectable()
 export class AirgramMetadataAccessor {
-  constructor(private readonly reflector: Reflector) {
-  }
+  constructor(private readonly reflector: Reflector) {}
 
-  getUpdateHandlerMetadata(target: Type<unknown>): UPDATE | undefined {
-    return this.reflector.get(UPDATE_EVENT_LISTENER_METADATA, target);
+  getEventsListenerMetadata(target: Type<unknown>): OnOptions | undefined {
+    return this.reflector.get(EVENTS_LISTENER_METADATA, target);
   }
 }

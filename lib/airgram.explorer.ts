@@ -1,23 +1,30 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationBootstrap,
+  OnModuleInit,
+} from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
-import { AirgramMetadataAccessor } from './airgram-metadata.accessor';
 import { Airgram, NextFn } from 'airgram';
+import { AirgramMetadataAccessor } from './airgram-metadata.accessor';
+import { InjectAirgram } from './decorators/inject-airgram.decorator';
+import { Context } from '@airgram/core/types/airgram';
+import { OnType } from './decorators/on.decorator';
 
 @Injectable()
-export class AirgramExplorer implements OnApplicationBootstrap {
+export class AirgramExplorer implements OnModuleInit {
   constructor(
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly metadataAccessor: AirgramMetadataAccessor,
-    private readonly airgram: Airgram,
+    @InjectAirgram() private readonly airgram: Airgram,
   ) {}
 
-  onApplicationBootstrap(): void {
+  onModuleInit(): void {
     this.explore();
   }
 
   explore(): void {
-    const providers = this.discoveryService
+    this.discoveryService
       .getProviders()
       .filter(wrapper => wrapper.isDependencyTreeStatic()) // What that check?
       .filter(wrapper => wrapper.instance)
@@ -29,23 +36,35 @@ export class AirgramExplorer implements OnApplicationBootstrap {
           instance,
           prototype,
           (methodKey: string) =>
-            this.subscribeToEventIfListener(instance, methodKey),
+            this.subscribeToEventsIfListener(instance, methodKey),
         );
       });
-    console.log(providers);
   }
 
-  private subscribeToEventIfListener(
+  private subscribeToEventsIfListener(
     instance: Record<string, any>,
     methodKey: string,
   ): void {
-    const updateEvent = this.metadataAccessor.getUpdateHandlerMetadata(
+    const onOptions = this.metadataAccessor.getEventsListenerMetadata(
       instance[methodKey],
     );
-    if (!updateEvent) return;
+    if (!onOptions) return;
 
-    this.airgram.on(updateEvent, (ctx: unknown, next: NextFn) => {
-      instance[methodKey].call(instance, [ctx]);
+    this.airgram.use((ctx: Context, next: NextFn) => {
+      if (ctx._ === onOptions.event) {
+        instance[methodKey].call(instance, ctx);
+      } else if (onOptions.type === OnType.OnlyUpdates) {
+        if ('update' in ctx) {
+          instance[methodKey].call(instance, ctx);
+        }
+      } else if (onOptions.type === OnType.OnlyRequests) {
+        if ('request' in ctx) {
+          instance[methodKey].call(instance, ctx);
+        }
+      } else {
+        instance[methodKey].call(instance, ctx);
+      }
+
       next();
     });
   }

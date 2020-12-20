@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AirgramModule } from 'nestjs-airgram';
+import { AirgramModule } from '../lib';
 import * as path from 'path';
 import { AppService } from './app.service';
 

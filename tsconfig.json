@@ -12,10 +12,7 @@
     "sourceMap": false,
     "baseUrl": "./",
     "outDir": "./dist",
-    "skipLibCheck": true,
-    "paths": {
-      "nestjs-airgram": ["./lib"]
-    }
+    "skipLibCheck": true
   },
   "include": ["lib/**/*", "sample/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "tests"]
