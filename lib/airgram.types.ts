@@ -1,7 +1,7 @@
 import { Middleware } from '@airgram/core/types/airgram';
 import { MethodName, UPDATE } from '@airgram/constants';
 
-export type OnEvent = UpdateEvent | RequestEvent;
+export type EventName = UpdateEvent | RequestEvent;
 export type UpdateEvent = keyof typeof UPDATE;
 export type RequestEvent = MethodName;
 

@@ -1,5 +1,6 @@
 import {
   DynamicModule,
+  Global,
   Module,
   OnApplicationShutdown,
   Provider,
@@ -11,6 +12,7 @@ import { AirgramMetadataAccessor } from './airgram-metadata.accessor';
 import { AirgramExplorer } from './airgram.explorer';
 import { AIRGRAM_CLIENT } from './airgram.constants';
 
+@Global()
 @Module({
   imports: [DiscoveryModule],
   providers: [AirgramMetadataAccessor, AirgramExplorer],

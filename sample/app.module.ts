@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AirgramModule } from '../lib';
 import * as path from 'path';
 import { AppService } from './app.service';
+import { AirgramModule } from '../lib';
 
 @Module({
   imports: [
@@ -13,15 +13,7 @@ import { AppService } from './app.service';
       auth: {
         phoneNumber: process.env.ACCOUNT_PHONE,
         password: process.env.ACCOUNT_PASSWORD,
-        code: () => {
-          const authCode = process.env.ACCOUNT_AUTH_CODE;
-
-          if (!authCode) {
-            throw new Error('Provide auth code and restart app.');
-          }
-
-          return authCode;
-        },
+        code: process.env.ACCOUNT_AUTH_CODE,
       },
     }),
   ],

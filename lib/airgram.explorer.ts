@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  OnApplicationBootstrap,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
-import { Airgram, NextFn } from 'airgram';
+import { Airgram, MiddlewareFn } from 'airgram';
+import { Composer, Context } from '@airgram/core';
 import { AirgramMetadataAccessor } from './airgram-metadata.accessor';
-import { InjectAirgram } from './decorators/inject-airgram.decorator';
-import { Context } from '@airgram/core/types/airgram';
-import { OnType } from './decorators/on.decorator';
+import { InjectAirgram } from './decorators';
+import { EventListenerType } from './enums/event-listener-type.enum';
 
 @Injectable()
 export class AirgramExplorer implements OnModuleInit {
@@ -26,7 +22,6 @@ export class AirgramExplorer implements OnModuleInit {
   explore(): void {
     this.discoveryService
       .getProviders()
-      .filter(wrapper => wrapper.isDependencyTreeStatic()) // What that check?
       .filter(wrapper => wrapper.instance)
       .forEach(wrapper => {
         const { instance } = wrapper;
@@ -35,37 +30,46 @@ export class AirgramExplorer implements OnModuleInit {
         this.metadataScanner.scanFromPrototype(
           instance,
           prototype,
-          (methodKey: string) =>
-            this.subscribeToEventsIfListener(instance, methodKey),
+          (methodKey: string) => this.lookupListener(instance, methodKey),
         );
       });
   }
 
-  private subscribeToEventsIfListener(
-    instance: Record<string, any>,
+  private lookupListener(
+    instance: Record<string, Function>,
     methodKey: string,
   ): void {
-    const onOptions = this.metadataAccessor.getEventsListenerMetadata(
-      instance[methodKey],
-    );
-    if (!onOptions) return;
+    const methodRef = instance[methodKey];
+    const listenerType = this.metadataAccessor.getEventListenerType(methodRef);
+    if (!listenerType) return;
 
-    this.airgram.use((ctx: Context, next: NextFn) => {
-      if (ctx._ === onOptions.event) {
-        instance[methodKey].call(instance, ctx);
-      } else if (onOptions.type === OnType.OnlyUpdates) {
-        if ('update' in ctx) {
-          instance[methodKey].call(instance, ctx);
+    const middlewareWrap: MiddlewareFn = (ctx, next) => {
+      methodRef.call(instance, ctx);
+      return next();
+    };
+
+    switch (listenerType) {
+      case EventListenerType.OnEvent: {
+        const eventName = this.metadataAccessor.getEventsListenerEventsName(
+          methodRef,
+        );
+
+        if (eventName) {
+          return this.airgram.on(eventName, middlewareWrap);
+        } else {
+          return this.airgram.use(middlewareWrap);
         }
-      } else if (onOptions.type === OnType.OnlyRequests) {
-        if ('request' in ctx) {
-          instance[methodKey].call(instance, ctx);
-        }
-      } else {
-        instance[methodKey].call(instance, ctx);
       }
-
-      next();
-    });
+      case EventListenerType.OnUpdate: {
+        return this.airgram.use(
+          Composer.optional((ctx: Context) => 'update' in ctx, middlewareWrap),
+        );
+      }
+      case EventListenerType.OnRequest: {
+        return this.airgram.use(
+          Composer.optional((ctx: Context) => 'request' in ctx, middlewareWrap),
+        );
+      }
+    }
   }
 }

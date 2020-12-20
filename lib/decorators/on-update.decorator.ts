@@ -1,5 +1,6 @@
-import { UpdateEvent } from '../airgram.types';
-import { On, OnType } from './on.decorator';
+import { SetMetadata } from '@nestjs/common';
+import { EVENT_LISTENER_TYPE } from '../airgram.constants';
+import { EventListenerType } from '../enums/event-listener-type.enum';
 
-export const OnUpdate = (updateEvent: UpdateEvent): MethodDecorator =>
-  On({ event: updateEvent, type: OnType.OnlyUpdates });
+export const OnUpdate = (): MethodDecorator =>
+  SetMetadata(EVENT_LISTENER_TYPE, EventListenerType.OnUpdate);

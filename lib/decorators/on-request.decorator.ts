@@ -1,5 +1,6 @@
-import { RequestEvent } from '../airgram.types';
-import { On, OnType } from './on.decorator';
+import { SetMetadata } from '@nestjs/common';
+import { EVENT_LISTENER_TYPE } from '../airgram.constants';
+import { EventListenerType } from '../enums/event-listener-type.enum';
 
-export const OnRequest = (requestEvent?: RequestEvent): MethodDecorator =>
-  On({ event: requestEvent, type: OnType.OnlyRequests });
+export const OnRequest = (): MethodDecorator =>
+  SetMetadata(EVENT_LISTENER_TYPE, EventListenerType.OnRequest);
