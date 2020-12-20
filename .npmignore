@@ -1,5 +1,8 @@
+.env
+.idea
+
 # source
-lib_
+lib
 sample
 tests
 index.ts
@@ -10,6 +13,13 @@ tsconfig.json
 .prettierrc
 .release-it.json
 .commitlintrc.json
+
+# tdlib
+tdjson.dll
+zlib1.dll
+libcrypto-1_1-x64.dll
+libssl-1_1-x64.dll
+db
 
 # github
 .github
