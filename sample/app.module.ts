@@ -5,16 +5,29 @@ import { AirgramModule } from '../lib';
 
 @Module({
   imports: [
-    AirgramModule.forRoot({
-      apiId: +process.env.API_ID!,
-      apiHash: process.env.API_HASH,
-      command: path.resolve('tdjson.dll'),
-      logVerbosityLevel: 2,
-      auth: {
-        phoneNumber: process.env.ACCOUNT_PHONE,
-        password: process.env.ACCOUNT_PASSWORD,
-        code: process.env.ACCOUNT_AUTH_CODE,
-      },
+    // AirgramModule.forRoot({
+    //   apiId: +process.env.API_ID!,
+    //   apiHash: process.env.API_HASH,
+    //   command: path.resolve('tdjson.dll'),
+    //   logVerbosityLevel: 2,
+    //   auth: {
+    //     phoneNumber: process.env.ACCOUNT_PHONE,
+    //     password: process.env.ACCOUNT_PASSWORD,
+    //     code: process.env.ACCOUNT_AUTH_CODE,
+    //   },
+    // }),
+    AirgramModule.forRootAsync({
+      useFactory: () => ({
+        apiId: +process.env.API_ID!,
+        apiHash: process.env.API_HASH,
+        command: path.resolve('tdjson.dll'),
+        logVerbosityLevel: 2,
+        auth: {
+          phoneNumber: process.env.ACCOUNT_PHONE,
+          password: process.env.ACCOUNT_PASSWORD,
+          code: process.env.ACCOUNT_AUTH_CODE,
+        },
+      }),
     }),
   ],
   providers: [AppService],
